@@ -47,6 +47,8 @@ add_library(VuforiaSample SHARED
             ../../../../../Components/VuforiaImageTarget.cpp
             ../../../../../Components/VuforiaAxis.cpp
             ../../../../../Components/VuforiaOrigin.cpp
+            ../../../../../Components/VuforiaModel.cpp
+            ../../../../../Components/VuforiaModelTarget.cpp
 
             # Android native sources
             GLESRenderer.cpp

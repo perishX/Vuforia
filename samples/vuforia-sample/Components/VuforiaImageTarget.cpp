@@ -7,19 +7,21 @@ VuforiaImageTarget::VuforiaImageTarget() {}
 
 VuforiaImageTarget::~VuforiaImageTarget() {}
 
-bool VuforiaImageTarget::init() {
+bool VuforiaImageTarget::init(AAssetManager* assetManager,std::string path) {
     // Setup for augmentation rendering
     mUniformColorShaderProgramID = GLUtils::createProgramFromBuffer(uniformColorVertexShaderSrc, uniformColorFragmentShaderSrc);
     mUniformColorVertexPositionHandle = glGetAttribLocation(mUniformColorShaderProgramID, "vertexPosition");
     mUniformColorMvpMatrixHandle = glGetUniformLocation(mUniformColorShaderProgramID, "modelViewProjectionMatrix");
     mUniformColorColorHandle = glGetUniformLocation(mUniformColorShaderProgramID, "uniformColor");
 
+    vuforiaModel.init(assetManager,path);
+    vuforiaAxis.init();
+
     return true;
 }
 
 void VuforiaImageTarget::render(VuMatrix44F& projectionMatrix, VuMatrix44F& modelViewMatrix, VuMatrix44F& scaledModelViewMatrix) {
     VuMatrix44F scaledModelViewProjectionMatrix = vuMatrix44FMultiplyMatrix(projectionMatrix, scaledModelViewMatrix);
-
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -54,4 +56,12 @@ void VuforiaImageTarget::render(VuMatrix44F& projectionMatrix, VuMatrix44F& mode
 
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
+
+    vuforiaModel.render(projectionMatrix, modelViewMatrix);
+    VuVector3F axis2cmSize{ 0.02f, 0.02f, 0.02f };
+    vuforiaAxis.render(projectionMatrix, modelViewMatrix, axis2cmSize, 4.0f);
+}
+
+void VuforiaImageTarget::setTexture(int width, int height, unsigned char* bytes){
+    vuforiaModel.setTexture(width,height,bytes);
 }

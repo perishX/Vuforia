@@ -3,22 +3,29 @@
 
 #include <string>
 
+#include <GLES3/gl31.h>
+#include <GLES2/gl2ext.h>
+
+#include <VuforiaEngine/VuforiaEngine.h>
+
+#include <vector>
+
+#include "VuforiaModel.h"
+#include "VuforiaAxis.h"
+
 class VuforiaModelTarget{
 private:
-    std::string targetPath{};
-    std::string vertexShaderPath{};
-    std::string fragmentShaderPath{};
-    std::string modelPath{};
-
-    GLuint mTextureUniformColorShaderProgramID = 0;
-    GLint mTextureUniformColorVertexPositionHandle = 0;
-    GLint mTextureUniformColorTextureCoordHandle = 0;
-    GLint mTextureUniformColorMvpMatrixHandle = 0;
-    GLint mTextureUniformColorTexSampler2DHandle = 0;
-    GLint mTextureUniformColorColorHandle = 0;
     GLuint mModelTargetGuideViewTextureUnit = -1;
+    VuforiaModel vuforiaModel;
+    VuforiaAxis vuforiaAxis;
 public:
-    bool renderTarget();
+    VuforiaModelTarget();
+    ~VuforiaModelTarget();
+    bool init(AAssetManager* assetManager,std::string path);
+    void renderModelTargetGuideView(VuMatrix44F& projectionMatrix, VuMatrix44F& modelViewMatrix, const VuImageInfo& image,
+                VuBool guideViewImageHasChanged);
+    void renderModelTarget(VuMatrix44F& projectionMatrix, VuMatrix44F& modelViewMatrix);
+    void setTexture(int width, int height, unsigned char* bytes);
 };
 
 #endif

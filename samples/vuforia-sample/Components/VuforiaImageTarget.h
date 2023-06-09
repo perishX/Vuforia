@@ -10,23 +10,25 @@
 
 #include <vector>
 
+#include "VuforiaModel.h"
+#include "VuforiaAxis.h"
+
 class VuforiaImageTarget{
 private:
-    std::string targetPath{};
-    std::string vertexShaderPath{};
-    std::string fragmentShaderPath{};
-    std::string modelPath{};
-
     // For augmentation rendering
     GLuint mUniformColorShaderProgramID = 0;
     GLint mUniformColorVertexPositionHandle = 0;
     GLint mUniformColorMvpMatrixHandle = 0;
     GLint mUniformColorColorHandle = 0;
+
+    VuforiaModel vuforiaModel;
+    VuforiaAxis vuforiaAxis;
 public:
     VuforiaImageTarget();
     ~VuforiaImageTarget();
-    bool init();
+    bool init(AAssetManager* assetManager,std::string path);
     void render(VuMatrix44F& projectionMatrix, VuMatrix44F& modelViewMatrix, VuMatrix44F& scaledModelViewMatrix);
+    void setTexture(int width, int height, unsigned char* bytes);
 };
 
 #endif

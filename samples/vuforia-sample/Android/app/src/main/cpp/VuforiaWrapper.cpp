@@ -7,7 +7,7 @@ countries.
 
 #include <jni.h>
 
-#include "GLESRenderer.h"
+//#include "GLESRenderer.h"
 #include <AppController.h>
 #include <Log.h>
 
@@ -26,6 +26,8 @@ countries.
 #include "VuforiaImageTarget.h"
 #include "VuforiaAxis.h"
 #include "VuforiaOrigin.h"
+//#include "VuforiaModel.h"
+#include "VuforiaModelTarget.h"
 
 // Cross-platform AppController providing high level Vuforia Engine operations
 AppController controller;
@@ -42,7 +44,7 @@ struct
     jmethodID presentErrorMethodID = nullptr;
     jmethodID initDoneMethodID = nullptr;
 
-    GLESRenderer renderer;
+//    GLESRenderer renderer;
 
     bool usingARCore{ false };
 
@@ -50,6 +52,8 @@ struct
     VuforiaImageTarget vuforiaImageTarget;
     VuforiaAxis vuforiaAxis;
     VuforiaOrigin vuforiaOrigin;
+//    VuforiaModel vuforiaModel;
+    VuforiaModelTarget vuforiaModelTarget;
 } gWrapperData;
 
 
@@ -194,15 +198,15 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_initRendering(JNIEnv* /* 
     // Define clear color
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-    if (!gWrapperData.renderer.init(gWrapperData.assetManager))
-    {
-        LOG("Error initialising rendering");
-    }
+//    if (!gWrapperData.renderer.init(gWrapperData.assetManager))
+//    {
+//        LOG("Error initialising rendering");
+//    }
     if (!gWrapperData.vuforiaVideoBackground.init())
     {
         LOG("Error initialising vuforiaVideoBackground rendering");
     }
-    if (!gWrapperData.vuforiaImageTarget.init())
+    if (!gWrapperData.vuforiaImageTarget.init(gWrapperData.assetManager,"Astronaut.obj"))
     {
         LOG("Error initialising vuforiaImageTarget rendering");
     }
@@ -213,6 +217,14 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_initRendering(JNIEnv* /* 
     if (!gWrapperData.vuforiaOrigin.init())
     {
         LOG("Error initialising vuforiaOrigin rendering");
+    }
+//    if (!gWrapperData.vuforiaModel.init(gWrapperData.assetManager,"Astronaut.obj"))
+//    {
+//        LOG("Error initialising vuforiaModel rendering");
+//    }
+    if (!gWrapperData.vuforiaModelTarget.init(gWrapperData.assetManager,"VikingLander.obj"))
+    {
+        LOG("Error initialising vuforiaModelTarget rendering");
     }
 }
 
@@ -225,16 +237,18 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_setTextures(JNIEnv* env, 
     // Textures are loaded using the BitmapFactory which isn't available from the NDK.
     // They are loaded in the Kotlin code and passed to this method to create GLES textures.
     auto astronautBytes = static_cast<unsigned char*>(env->GetDirectBufferAddress(astronautByteBuffer));
-    gWrapperData.renderer.setAstronautTexture(astronautWidth, astronautHeight, astronautBytes);
+//    gWrapperData.renderer.setAstronautTexture(astronautWidth, astronautHeight, astronautBytes);
+    gWrapperData.vuforiaImageTarget.setTexture(astronautWidth, astronautHeight, astronautBytes);
     auto landerBytes = static_cast<unsigned char*>(env->GetDirectBufferAddress(landerByteBuffer));
-    gWrapperData.renderer.setLanderTexture(landerWidth, landerHeight, landerBytes);
+//    gWrapperData.renderer.setLanderTexture(landerWidth, landerHeight, landerBytes);
+    gWrapperData.vuforiaModelTarget.setTexture(landerWidth, landerHeight, landerBytes);
 }
 
 
 JNIEXPORT void JNICALL
 Java_com_vuforia_engine_native_1sample_VuforiaActivity_deinitRendering(JNIEnv* /* env */, jobject /* this */)
 {
-    gWrapperData.renderer.deinit();
+//    gWrapperData.renderer.deinit();
 }
 
 
@@ -295,18 +309,22 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_renderFrame(JNIEnv* /* en
         {
 //            gWrapperData.renderer.renderImageTarget(trackableProjection, trackableModelView, trackableModelViewScaled);
                 gWrapperData.vuforiaImageTarget.render(trackableProjection, trackableModelView, trackableModelViewScaled);
-                VuVector3F axis2cmSize{ 0.02f, 0.02f, 0.02f };
-                gWrapperData.vuforiaAxis.render(trackableProjection, trackableModelView, axis2cmSize, 4.0f);
+//                VuVector3F axis2cmSize{ 0.02f, 0.02f, 0.02f };
+//                gWrapperData.vuforiaAxis.render(trackableProjection, trackableModelView, axis2cmSize, 4.0f);
+//                gWrapperData.vuforiaModel.render(trackableProjection, trackableModelView);
         }
         else if (controller.getModelTargetResult(trackableProjection, trackableModelView, trackableModelViewScaled))
         {
-            gWrapperData.renderer.renderModelTarget(trackableProjection, trackableModelView, trackableModelViewScaled);
+//            gWrapperData.renderer.renderModelTarget(trackableProjection, trackableModelView, trackableModelViewScaled);
+                gWrapperData.vuforiaModelTarget.renderModelTarget(trackableProjection, trackableModelView);
         }
         else if (controller.getModelTargetGuideView(trackableProjection, trackableModelView, modelTargetGuideViewImage,
                                                     guideViewImageHasChanged))
         {
-            gWrapperData.renderer.renderModelTargetGuideView(trackableProjection, trackableModelView, modelTargetGuideViewImage,
-                                                             guideViewImageHasChanged);
+//            gWrapperData.renderer.renderModelTargetGuideView(trackableProjection, trackableModelView, modelTargetGuideViewImage,
+//                                                             guideViewImageHasChanged);
+            gWrapperData.vuforiaModelTarget.renderModelTargetGuideView(trackableProjection, trackableModelView, modelTargetGuideViewImage,
+                                                                       guideViewImageHasChanged);
         }
 
         if (gWrapperData.usingARCore)
