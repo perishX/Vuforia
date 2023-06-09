@@ -22,6 +22,11 @@ countries.
 
 #include <arcore_c_api.h>
 
+#include "VuforiaVideoBackground.h"
+#include "VuforiaImageTarget.h"
+#include "VuforiaAxis.h"
+#include "VuforiaOrigin.h"
+
 // Cross-platform AppController providing high level Vuforia Engine operations
 AppController controller;
 
@@ -40,6 +45,11 @@ struct
     GLESRenderer renderer;
 
     bool usingARCore{ false };
+
+    VuforiaVideoBackground vuforiaVideoBackground;
+    VuforiaImageTarget vuforiaImageTarget;
+    VuforiaAxis vuforiaAxis;
+    VuforiaOrigin vuforiaOrigin;
 } gWrapperData;
 
 
@@ -85,8 +95,7 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_initAR(JNIEnv* env, jobje
                                                               jint target)
 {
     // Store the Java VM pointer so we can get a JNIEnv in callbacks
-    if (env->GetJavaVM(&gWrapperData.vm) != 0)
-    {
+    if (env->GetJavaVM(&gWrapperData.vm) != 0) {
         return;
     }
     gWrapperData.activity = env->NewGlobalRef(activity);
@@ -189,6 +198,22 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_initRendering(JNIEnv* /* 
     {
         LOG("Error initialising rendering");
     }
+    if (!gWrapperData.vuforiaVideoBackground.init())
+    {
+        LOG("Error initialising vuforiaVideoBackground rendering");
+    }
+    if (!gWrapperData.vuforiaImageTarget.init())
+    {
+        LOG("Error initialising vuforiaImageTarget rendering");
+    }
+    if (!gWrapperData.vuforiaAxis.init())
+    {
+        LOG("Error initialising vuforiaAxis rendering");
+    }
+    if (!gWrapperData.vuforiaOrigin.init())
+    {
+        LOG("Error initialising vuforiaOrigin rendering");
+    }
 }
 
 
@@ -245,14 +270,20 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_renderFrame(JNIEnv* /* en
         glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
         auto renderState = controller.getRenderState();
-        gWrapperData.renderer.renderVideoBackground(renderState.vbProjectionMatrix, renderState.vbMesh->pos, renderState.vbMesh->tex,
-                                                    renderState.vbMesh->numFaces, renderState.vbMesh->faceIndices, vbTextureUnit);
+//        gWrapperData.renderer.renderVideoBackground(renderState.vbProjectionMatrix, renderState.vbMesh->pos, renderState.vbMesh->tex,
+//                                                    renderState.vbMesh->numFaces, renderState.vbMesh->faceIndices, vbTextureUnit);
+        gWrapperData.vuforiaVideoBackground.render(renderState.vbProjectionMatrix, renderState.vbMesh->pos, renderState.vbMesh->tex,
+                                                   renderState.vbMesh->numFaces, renderState.vbMesh->faceIndices, vbTextureUnit);
 
         VuMatrix44F worldOriginProjection;
         VuMatrix44F worldOriginModelView;
         if (controller.getOrigin(worldOriginProjection, worldOriginModelView))
         {
-            gWrapperData.renderer.renderWorldOrigin(worldOriginProjection, worldOriginModelView);
+//            gWrapperData.renderer.renderWorldOrigin(worldOriginProjection, worldOriginModelView);
+            VuVector3F axis10cmSize{ 0.1f, 0.1f, 0.1f };
+            gWrapperData.vuforiaAxis.render(worldOriginProjection, worldOriginModelView, axis10cmSize, 4.0f);
+            VuVector4F cubeColor{ 0.8, 0.8, 0.8, 1.0 };
+            gWrapperData.vuforiaOrigin.render(worldOriginProjection, worldOriginModelView, 0.015f, cubeColor);
         }
 
         VuMatrix44F trackableProjection;
@@ -262,7 +293,10 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_renderFrame(JNIEnv* /* en
         VuBool guideViewImageHasChanged;
         if (controller.getImageTargetResult(trackableProjection, trackableModelView, trackableModelViewScaled))
         {
-            gWrapperData.renderer.renderImageTarget(trackableProjection, trackableModelView, trackableModelViewScaled);
+//            gWrapperData.renderer.renderImageTarget(trackableProjection, trackableModelView, trackableModelViewScaled);
+                gWrapperData.vuforiaImageTarget.render(trackableProjection, trackableModelView, trackableModelViewScaled);
+                VuVector3F axis2cmSize{ 0.02f, 0.02f, 0.02f };
+                gWrapperData.vuforiaAxis.render(trackableProjection, trackableModelView, axis2cmSize, 4.0f);
         }
         else if (controller.getModelTargetResult(trackableProjection, trackableModelView, trackableModelViewScaled))
         {

@@ -146,7 +146,7 @@ GLESRenderer::renderVideoBackground(const VuMatrix44F& projectionMatrix, const f
 
     // Then, we issue the render call
     glDrawElements(GL_TRIANGLES, numTriangles * 3, GL_UNSIGNED_INT, indices);
-
+//    glDrawElements(GL_LINEAR, numTriangles * 3, GL_UNSIGNED_INT, indices);
     // Finally, we disable the vertex arrays
     glDisableVertexAttribArray(static_cast<GLuint>(mVbVertexPositionHandle));
     glDisableVertexAttribArray(static_cast<GLuint>(mVbTextureCoordHandle));

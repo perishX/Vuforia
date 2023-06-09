@@ -42,6 +42,11 @@ add_library(VuforiaSample SHARED
             # Cross platform source
             ../../../../../CrossPlatform/AppController.cpp
             ../../../../../CrossPlatform/tiny_obj_loader.cpp
+            ../../../../../Utils/GLUtils.cpp
+            ../../../../../Components/VuforiaVideoBackground.cpp
+            ../../../../../Components/VuforiaImageTarget.cpp
+            ../../../../../Components/VuforiaAxis.cpp
+            ../../../../../Components/VuforiaOrigin.cpp
 
             # Android native sources
             GLESRenderer.cpp
@@ -54,6 +59,7 @@ target_include_directories(VuforiaSample PUBLIC
                            ${VUFORIA_ENGINE}/build/include
                            ${GLES3_INCLUDE_DIR}
                             ../../../../../Components
+                            ../../../../../Utils
 )
 
 # Specify libraries CMake should link to your target library
